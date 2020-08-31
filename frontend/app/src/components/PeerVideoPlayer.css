@@ -1,0 +1,14 @@
+.video:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+ }
+
+ video:-webkit-full-screen::-webkit-media-controls-panel, video:-webkit-full-screen::-webkit-media-controls, video:-webkit-full-screen::-webkit-media-text-track-container {
+    display: none !important;
+    opacity: 0;
+}
+
+#me {
+    transform: scaleX(-1)
+}

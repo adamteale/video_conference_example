@@ -1,0 +1,42 @@
+
+
+server {
+    listen [::]:443;
+    listen 443 ssl;
+
+    server_name          app.videoconf.dev;
+
+    ssl on;
+    ssl_certificate      /usr/local/etc/nginx/certs/localhost.crt;
+    ssl_certificate_key  /usr/local/etc/nginx/certs/localhost.key;
+    ssl_ciphers          HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://localhost:3000/;
+    }
+ 
+    location /api/ {
+        rewrite ^/api/(.*) /$1 break;
+        proxy_pass http://localhost:8000/;
+        proxy_set_header Host "localhost";
+    }
+
+    location /ws/ {
+        rewrite ^/ws/(.*) /$1 break;
+
+        proxy_pass http://localhost:8000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+
+        # Pass the csrf token (see https://de.wikipedia.org/wiki/Cross-Site-Request-Forgery)
+        # Default in Spring Boot and required. Without it nginx suppresses the value
+        proxy_pass_header X-XSRF-TOKEN;
+
+        # Set origin to the real instance, otherwise a of Spring security check will fail
+        # Same value as defined in proxy_pass
+        proxy_set_header Origin "http://localhost:8000";  
+
+    }
+
+}

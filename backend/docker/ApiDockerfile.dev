@@ -1,0 +1,13 @@
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+
+COPY /app/requirements_api.txt .
+
+RUN pip install -r requirements_api.txt
+
+COPY ./app /app
+
+WORKDIR /app/
+
+ENV PYTHONPATH=/app
+
+EXPOSE 80

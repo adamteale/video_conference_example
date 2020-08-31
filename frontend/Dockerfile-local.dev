@@ -1,0 +1,36 @@
+# FROM node:alpine
+
+# COPY /app/package.json .
+# COPY /app/yarn.lock .
+# COPY /app .
+# RUN yarn install
+
+# CMD ["yarn", "build:staging"]
+
+
+# Stage 0, "build-stage", based on Node.js, to build and compile the frontend
+FROM tiangolo/node-frontend:10 as build-stage
+
+WORKDIR /app
+
+COPY /app/package.json /app/
+COPY /app/yarn.lock /app/
+
+RUN npm install -g yarn
+RUN yarn install
+
+COPY ./app/ /app/
+
+RUN yarn build:development
+
+
+# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
+FROM nginx:1.15
+
+COPY --from=build-stage /app/build/ /usr/share/nginx/html
+
+# Copy the default nginx.conf provided by tiangolo/node-frontend
+#COPY --from=build-stage /nginx.conf /etc/nginx/conf.d/default.conf
+COPY /nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 3000

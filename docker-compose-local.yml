@@ -1,0 +1,60 @@
+version: "3.7"
+services:
+  # coturn:
+  #   restart: unless-stopped
+  #   image: "instrumentisto/coturn:4.5"
+  #   ports:
+  #     - "3478:3478/udp"
+  #     - "49200-49400:49200-49400/udp"
+  #   volumes:
+  #     - ./coturn/turnserver-local.conf:/etc/coturn/turnserver.conf:Z
+  #     - /tmp/log/coturn/:/var/log/:Z
+  #     - ./coturn/db:/var/lib/coturn
+  #   command: "-c /etc/coturn/turnserver.conf --log-file=/var/log/coturn.log --external-ip=$$(detect-external-ip)"
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis/redis.conf:/redis.conf
+    command: ["redis-server", "/redis.conf"]
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-local.dev
+    volumes:
+      - .:/frontend
+    ports:
+      - "3000:3000"
+    restart: on-failure
+  roommanager:
+    container_name: roommanager
+    depends_on:
+      - redis
+      - backend
+    build:
+      context: ./backend
+      dockerfile: ./docker/RoomManagerDockerfile.dev
+    restart: on-failure
+    volumes:
+      - .:/backend
+    environment:
+      - PORT=8000
+      - REDIS_HOST=redis
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: ./docker/ApiDockerfile.dev
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    networks:
+      - default
+    volumes:
+      - .:/backend
+    environment:
+      - PORT=8000
+      - REDIS_HOST=redis
+      - BATCHUPLOADDIR=/batchUploads

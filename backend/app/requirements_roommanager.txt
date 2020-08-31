@@ -1,0 +1,13 @@
+aioice==0.6.18
+aiortc==0.9.28
+av==8.0.2
+cffi==1.14.2
+crc32c==2.0.1
+cryptography==3.1
+netifaces==0.10.9
+pycparser==2.20
+pyee==7.0.2
+pylibsrtp==0.6.6
+redis==3.5.3
+six==1.15.0
+starlette==0.13.8

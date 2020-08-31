@@ -1,0 +1,17 @@
+FROM python:3
+
+RUN apt-get update
+RUN apt-get install -y ffmpeg
+RUN apt install -y libavdevice-dev libavfilter-dev libopus-dev libvpx-dev pkg-config
+
+COPY /app/requirements_roommanager.txt .
+
+RUN pip install -r requirements_roommanager.txt
+
+COPY ./app /app
+
+WORKDIR /app/
+
+ENV PYTHONPATH=/app
+
+CMD [ "python", "-m", "app.RoomManager.RoomManager" ]
